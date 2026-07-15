@@ -66,11 +66,11 @@ code {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #374151;
+  color: #6667ba;
   flex-shrink: 0;
   padding-right: 10px;
   border-right: 1px solid rgba(255,255,255,0.08);
-  margin-right: 2px;
+  margin-left:auto;
   white-space: nowrap;
 }
 
@@ -87,7 +87,7 @@ code {
 }
 .logo-icon svg { width: 18px; height: 18px; color: #60a5fa; }
 
-.site-nav { display: flex; gap: 1px; flex-wrap: nowrap; margin-left: auto; }
+.site-nav { display: flex; gap: 1px; flex-wrap: nowrap; margin-left: auto }
 .nav-link {
   color: #9ca3af;
   font-size: 0.81rem;
