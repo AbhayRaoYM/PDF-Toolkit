@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}Merge PDFs{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sortable-list.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div class="module-page">
+  <h1 class="page-title">Merge PDFs</h1>
+  <p class="page-desc">Upload two or more PDF files, drag to set the order, then merge them into one.</p>
+
+  <div class="drop-zone" id="dropZone">
+    <p>Drag &amp; drop <strong>PDF files</strong> here, or</p>
+    <label class="btn btn-secondary">
+      Browse files
+      <input type="file" id="fileInput" accept=".pdf" multiple hidden />
+    </label>
+  </div>
+
+  <div id="fileListWrap" hidden>
+    <div class="list-header">
+      <span>Files to merge <span class="muted">(drag rows to reorder)</span></span>
+      <span class="muted list-count" id="listCount"></span>
+    </div>
+    <ul class="sortable-list" id="sortableList"></ul>
+  </div>
+
+  <button class="btn btn-primary" id="mergeBtn" disabled>Merge &amp; Download</button>
+
+  <div class="status-box" id="statusBox" hidden></div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+(function () {
+  const dropZone   = document.getElementById("dropZone");
+  const fileInput  = document.getElementById("fileInput");
+  const listWrap   = document.getElementById("fileListWrap");
+  const list       = document.getElementById("sortableList");
+  const listCount  = document.getElementById("listCount");
+  const mergeBtn   = document.getElementById("mergeBtn");
+  const statusBox  = document.getElementById("statusBox");
+
+  // Initialize SortableJS
+  const sortable = Sortable.create(list, {
+    animation: 150,
+    handle: ".drag-handle",
+    ghostClass: "sortable-ghost",
+    chosenClass: "sortable-chosen",
+    onEnd: updateCount,
+  });
+
+  // Pre-populate files already in session (server-rendered)
+  const existingFiles = {{ existing_files | tojson }};
+  existingFiles.forEach(name => addItem(name));
+  if (existingFiles.length) {
+    listWrap.hidden = false;
+    updateMergeBtn();
+  }
+
+  fileInput.addEventListener("change", () => uploadFiles(fileInput.files));
+
+  dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("drag-over"); });
+  dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
+  dropZone.addEventListener("drop", e => {
+    e.preventDefault();
+    dropZone.classList.remove("drag-over");
+    uploadFiles(e.dataTransfer.files);
+  });
+
+  async function uploadFiles(files) {
+    const pdfs = Array.from(files).filter(f => f.name.toLowerCase().endsWith(".pdf"));
+    if (!pdfs.length) { showStatus("Please select PDF files.", "error"); return; }
+
+    showStatus(`Uploading ${pdfs.length} file(s)…`, "info");
+    const fd = new FormData();
+    pdfs.forEach(f => fd.append("files", f));
+
+    try {
+      const res  = await fetch("/merge-pdf/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) { showStatus(data.error || "Upload failed.", "error"); return; }
+      data.files.forEach(name => {
+        // Avoid duplicates
+        if (!list.querySelector(`[data-filename="${CSS.escape(name)}"]`)) {
+          addItem(name);
+        }
+      });
+      listWrap.hidden = false;
+      updateMergeBtn();
+      hideStatus();
+    } catch (e) {
+      showStatus("Network error during upload.", "error");
+    }
+  }
+
+  function addItem(name) {
+    const li = document.createElement("li");
+    li.className = "sortable-item";
+    li.dataset.filename = name;
+    li.innerHTML = `
+      <span class="drag-handle" title="Drag to reorder">&#9776;</span>
+      <span class="item-name">${escHtml(name)}</span>
+      <button class="remove-btn" title="Remove" aria-label="Remove ${escHtml(name)}">&#x2715;</button>
+    `;
+    li.querySelector(".remove-btn").addEventListener("click", () => {
+      li.remove();
+      updateMergeBtn();
+      updateCount();
+    });
+    list.appendChild(li);
+    updateCount();
+  }
+
+  function updateCount() {
+    const n = list.querySelectorAll(".sortable-item").length;
+    listCount.textContent = `${n} file${n !== 1 ? "s" : ""}`;
+  }
+
+  function updateMergeBtn() {
+    const n = list.querySelectorAll(".sortable-item").length;
+    mergeBtn.disabled = n < 2;
+  }
+
+  mergeBtn.addEventListener("click", async () => {
+    const items = list.querySelectorAll(".sortable-item");
+    const filenames = Array.from(items).map(li => li.dataset.filename);
+    if (filenames.length < 2) { showStatus("Add at least 2 PDFs to merge.", "error"); return; }
+
+    mergeBtn.disabled = true;
+    showStatus("Merging PDFs… please wait.", "info");
+
+    try {
+      const res = await fetch("/merge-pdf/merge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ files: filenames }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        showStatus(err.error || "Merge failed.", "error");
+        mergeBtn.disabled = false;
+        return;
+      }
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href = url;
+      a.download = "merged.pdf";
+      a.click();
+      URL.revokeObjectURL(url);
+      showStatus("Done! Merged PDF downloaded.", "success");
+    } catch (e) {
+      showStatus("Network error. Please try again.", "error");
+    }
+    mergeBtn.disabled = false;
+  });
+
+  function showStatus(msg, type) {
+    statusBox.textContent = msg;
+    statusBox.className = "status-box status-" + type;
+    statusBox.hidden = false;
+  }
+  function hideStatus() { statusBox.hidden = true; }
+  function escHtml(s) {
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+})();
+</script>
+{% endblock %}

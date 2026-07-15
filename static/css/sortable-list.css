@@ -1,0 +1,79 @@
+/* ─── Sortable List (Merge PDF page) ─────────────────────────────────────── */
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1f2328;
+  margin-bottom: 8px;
+}
+.list-count { font-weight: 400; }
+
+.sortable-list {
+  list-style: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.sortable-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  background: #ffffff;
+  border-bottom: 1px solid #f0f1f3;
+  transition: background 0.1s;
+}
+.sortable-item:last-child { border-bottom: none; }
+
+.sortable-item.sortable-ghost {
+  opacity: 0.45;
+  background: #eff6ff;
+}
+.sortable-item.sortable-chosen {
+  background: #f7f8fa;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  z-index: 10;
+}
+
+.drag-handle {
+  color: #bcc0c6;
+  cursor: grab;
+  font-size: 1.1rem;
+  line-height: 1;
+  user-select: none;
+  flex-shrink: 0;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: color 0.12s;
+}
+.drag-handle:hover { color: #57606a; }
+.drag-handle:active { cursor: grabbing; }
+
+.item-name {
+  flex: 1;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #bcc0c6;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 4px;
+  transition: color 0.12s, background 0.12s;
+}
+.remove-btn:hover {
+  color: #9b1c1c;
+  background: #fff0f0;
+}

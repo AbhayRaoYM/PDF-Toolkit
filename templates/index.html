@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}PDF Toolkit — Home{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1 class="hero-title">PDF Toolkit</h1>
+  <p class="hero-sub">Fast, browser-based document tools. Your files stay in your session and are never shared.</p>
+</section>
+
+<div class="card-grid">
+
+  <a href="/word-to-pdf" class="module-card">
+    <div class="card-icon">W</div>
+    <h2 class="card-title">Word → PDF</h2>
+    <p class="card-desc">Convert a <code>.docx</code> file into a PDF document instantly.</p>
+  </a>
+
+  <a href="/merge-pdf" class="module-card">
+    <div class="card-icon">M</div>
+    <h2 class="card-title">Merge PDFs</h2>
+    <p class="card-desc">Combine multiple PDF files into one. Drag to set the order before merging.</p>
+  </a>
+
+  <a href="/split-pdf" class="module-card">
+    <div class="card-icon">S</div>
+    <h2 class="card-title">Split PDF</h2>
+    <p class="card-desc">Split a PDF by page ranges or extract every page as its own file.</p>
+  </a>
+
+  <a href="/pdf-to-word" class="module-card">
+    <div class="card-icon">P</div>
+    <h2 class="card-title">PDF → Word</h2>
+    <p class="card-desc">Convert a PDF back into an editable <code>.docx</code> Word document.</p>
+  </a>
+
+</div>
+{% endblock %}

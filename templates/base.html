@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}PDF Toolkit{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="site-logo" href="/">PDF Toolkit</a>
+      <nav class="site-nav">
+        <a href="/word-to-pdf" class="nav-link {% if request.path == '/word-to-pdf' %}active{% endif %}">Word → PDF</a>
+        <a href="/merge-pdf"   class="nav-link {% if request.path == '/merge-pdf' %}active{% endif %}">Merge PDF</a>
+        <a href="/split-pdf"   class="nav-link {% if request.path == '/split-pdf' %}active{% endif %}">Split PDF</a>
+        <a href="/pdf-to-word" class="nav-link {% if request.path == '/pdf-to-word' %}active{% endif %}">PDF → Word</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
