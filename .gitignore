@@ -1,0 +1,9 @@
+uploads/
+__pycache__/
+*.pyc
+*.pyo
+.env
+flask_session/
+client_secret.json
+token.json
+*.credentials.json
