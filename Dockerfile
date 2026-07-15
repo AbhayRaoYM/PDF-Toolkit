@@ -1,14 +1,15 @@
-FROM python:3.11-slim
+FROM python:3.11
 
 # Install LibreOffice for Word→PDF conversion
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         libreoffice \
-        libreoffice-writer \
-        default-jre-headless && \
+        libreoffice-writer && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    soffice --version
+    rm -rf /var/lib/apt/lists/*
+
+# Verify LibreOffice is accessible
+RUN soffice --version
 
 WORKDIR /app
 
@@ -20,6 +21,7 @@ COPY . .
 RUN mkdir -p uploads
 
 ENV PYTHONUNBUFFERED=1
+ENV HOME=/root
 
 EXPOSE 10000
 
