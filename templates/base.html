@@ -5,26 +5,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}PDF Toolkit{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <!-- Lucide icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   {% block extra_head %}{% endblock %}
 </head>
 <body>
   <header class="site-header">
     <div class="header-inner">
-      <a class="site-logo" href="/">PDF Toolkit</a>
+      <a class="site-logo" href="/">
+        <span class="logo-icon"><i data-lucide="file-text"></i></span>
+        PDF Toolkit
+      </a>
       <nav class="site-nav">
-        <a href="/word-to-pdf" class="nav-link {% if request.path == '/word-to-pdf' %}active{% endif %}">Word → PDF</a>
-        <a href="/merge-pdf"   class="nav-link {% if request.path == '/merge-pdf' %}active{% endif %}">Merge PDF</a>
-        <a href="/split-pdf"   class="nav-link {% if request.path == '/split-pdf' %}active{% endif %}">Split PDF</a>
-        <a href="/pdf-to-word" class="nav-link {% if request.path == '/pdf-to-word' %}active{% endif %}">PDF → Word</a>
+        <a href="/word-to-pdf" class="nav-link {% if request.path == '/word-to-pdf' %}active{% endif %}">
+          <i data-lucide="file-output"></i> Word → PDF
+        </a>
+        <a href="/merge-pdf" class="nav-link {% if request.path == '/merge-pdf' %}active{% endif %}">
+          <i data-lucide="layers"></i> Merge PDF
+        </a>
+        <a href="/split-pdf" class="nav-link {% if request.path == '/split-pdf' %}active{% endif %}">
+          <i data-lucide="scissors"></i> Split PDF
+        </a>
+        <a href="/pdf-to-word" class="nav-link {% if request.path == '/pdf-to-word' %}active{% endif %}">
+          <i data-lucide="file-input"></i> PDF → Word
+        </a>
       </nav>
+      <button class="nav-hamburger" id="navToggle" aria-label="Toggle menu">
+        <i data-lucide="menu"></i>
+      </button>
     </div>
+    <nav class="mobile-nav" id="mobileNav">
+      <a href="/word-to-pdf" class="nav-link {% if request.path == '/word-to-pdf' %}active{% endif %}"><i data-lucide="file-output"></i> Word → PDF</a>
+      <a href="/merge-pdf"   class="nav-link {% if request.path == '/merge-pdf' %}active{% endif %}"><i data-lucide="layers"></i> Merge PDF</a>
+      <a href="/split-pdf"   class="nav-link {% if request.path == '/split-pdf' %}active{% endif %}"><i data-lucide="scissors"></i> Split PDF</a>
+      <a href="/pdf-to-word" class="nav-link {% if request.path == '/pdf-to-word' %}active{% endif %}"><i data-lucide="file-input"></i> PDF → Word</a>
+    </nav>
   </header>
 
   <main class="page-content">
     {% block content %}{% endblock %}
   </main>
 
+  <footer class="site-footer">
+    <p>PDF Toolkit &mdash; Files are processed in your session and never stored permanently.</p>
+  </footer>
+
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
   {% block extra_scripts %}{% endblock %}
+  <script>lucide.createIcons();</script>
 </body>
 </html>

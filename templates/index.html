@@ -3,35 +3,54 @@
 
 {% block content %}
 <section class="hero">
-  <h1 class="hero-title">PDF Toolkit</h1>
-  <p class="hero-sub">Fast, browser-based document tools. Your files stay in your session and are never shared.</p>
+  <div class="hero-badge"><i data-lucide="zap"></i> Fast &amp; Private</div>
+  <h1 class="hero-title">Document Tools,<br>Done Simply.</h1>
+  <p class="hero-sub">Convert, merge, and split PDF &amp; Word files right in your browser. Files stay in your session — never uploaded to any third-party service.</p>
 </section>
 
 <div class="card-grid">
 
-  <a href="/word-to-pdf" class="module-card">
-    <div class="card-icon">W</div>
+  <a href="/word-to-pdf" class="module-card card-blue">
+    <div class="card-icon-wrap">
+      <i data-lucide="file-output"></i>
+    </div>
     <h2 class="card-title">Word → PDF</h2>
-    <p class="card-desc">Convert a <code>.docx</code> file into a PDF document instantly.</p>
+    <p class="card-desc">Convert a <code>.docx</code> file into a polished PDF document instantly.</p>
+    <span class="card-arrow"><i data-lucide="arrow-right"></i></span>
   </a>
 
-  <a href="/merge-pdf" class="module-card">
-    <div class="card-icon">M</div>
+  <a href="/merge-pdf" class="module-card card-violet">
+    <div class="card-icon-wrap">
+      <i data-lucide="layers"></i>
+    </div>
     <h2 class="card-title">Merge PDFs</h2>
     <p class="card-desc">Combine multiple PDF files into one. Drag to set the order before merging.</p>
+    <span class="card-arrow"><i data-lucide="arrow-right"></i></span>
   </a>
 
-  <a href="/split-pdf" class="module-card">
-    <div class="card-icon">S</div>
+  <a href="/split-pdf" class="module-card card-amber">
+    <div class="card-icon-wrap">
+      <i data-lucide="scissors"></i>
+    </div>
     <h2 class="card-title">Split PDF</h2>
     <p class="card-desc">Split a PDF by page ranges or extract every page as its own file.</p>
+    <span class="card-arrow"><i data-lucide="arrow-right"></i></span>
   </a>
 
-  <a href="/pdf-to-word" class="module-card">
-    <div class="card-icon">P</div>
+  <a href="/pdf-to-word" class="module-card card-green">
+    <div class="card-icon-wrap">
+      <i data-lucide="file-input"></i>
+    </div>
     <h2 class="card-title">PDF → Word</h2>
     <p class="card-desc">Convert a PDF back into an editable <code>.docx</code> Word document.</p>
+    <span class="card-arrow"><i data-lucide="arrow-right"></i></span>
   </a>
 
+</div>
+
+<div class="features-strip">
+  <div class="feature-item"><i data-lucide="shield-check"></i> <span>Session-scoped — files deleted after use</span></div>
+  <div class="feature-item"><i data-lucide="wifi-off"></i> <span>No third-party cloud uploads</span></div>
+  <div class="feature-item"><i data-lucide="download"></i> <span>Instant browser download</span></div>
 </div>
 {% endblock %}

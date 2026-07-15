@@ -3,20 +3,33 @@
 
 {% block content %}
 <div class="module-page">
-  <h1 class="page-title">PDF → Word</h1>
-  <p class="page-desc">Upload a PDF and download it as an editable <code>.docx</code> file.</p>
-  <p class="page-note"><strong>Note:</strong> Conversion works best on text-based PDFs. Scanned image PDFs may not convert well.</p>
+  <div class="page-header">
+    <div class="page-header-icon icon-green"><i data-lucide="file-input"></i></div>
+    <div>
+      <h1 class="page-title">PDF → Word</h1>
+      <p class="page-desc">Upload a PDF and download it as an editable <code>.docx</code> file.</p>
+    </div>
+  </div>
+
+  <div class="page-note">
+    <i data-lucide="info"></i>
+    <span>Works best on text-based PDFs. Scanned image PDFs may not produce editable text.</span>
+  </div>
 
   <div class="drop-zone" id="dropZone">
-    <p>Drag &amp; drop your <strong>.pdf</strong> file here, or</p>
+    <div class="drop-icon"><i data-lucide="upload-cloud"></i></div>
+    <p class="drop-main">Drag &amp; drop your <strong>.pdf</strong> file here</p>
+    <p class="drop-or">or</p>
     <label class="btn btn-secondary">
-      Browse file
+      <i data-lucide="folder-open"></i> Browse file
       <input type="file" id="fileInput" accept=".pdf" hidden />
     </label>
     <p class="drop-hint" id="selectedName">No file selected</p>
   </div>
 
-  <button class="btn btn-primary" id="convertBtn" disabled>Convert &amp; Download</button>
+  <button class="btn btn-primary" id="convertBtn" disabled>
+    <i data-lucide="file-down"></i> Convert &amp; Download
+  </button>
 
   <div class="status-box" id="statusBox" hidden></div>
 </div>
@@ -34,60 +47,40 @@
 
   function setFile(file) {
     if (!file || !file.name.toLowerCase().endsWith(".pdf")) {
-      showStatus("Please select a .pdf file.", "error");
-      return;
+      showStatus("Please select a .pdf file.", "error"); return;
     }
     selectedFile = file;
     nameLabel.textContent = file.name;
+    nameLabel.classList.add("has-file");
     convertBtn.disabled = false;
     hideStatus();
   }
 
   fileInput.addEventListener("change", () => setFile(fileInput.files[0]));
-
   dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("drag-over"); });
   dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
-  dropZone.addEventListener("drop", e => {
-    e.preventDefault();
-    dropZone.classList.remove("drag-over");
-    setFile(e.dataTransfer.files[0]);
-  });
+  dropZone.addEventListener("drop", e => { e.preventDefault(); dropZone.classList.remove("drag-over"); setFile(e.dataTransfer.files[0]); });
 
   convertBtn.addEventListener("click", async () => {
     if (!selectedFile) return;
     convertBtn.disabled = true;
     showStatus("Converting… this may take a moment for large files.", "info");
-
     const fd = new FormData();
     fd.append("file", selectedFile);
-
     try {
       const res = await fetch("/pdf-to-word/convert", { method: "POST", body: fd });
-      if (!res.ok) {
-        const err = await res.json();
-        showStatus(err.error || "Conversion failed.", "error");
-        convertBtn.disabled = false;
-        return;
-      }
+      if (!res.ok) { const err = await res.json(); showStatus(err.error || "Conversion failed.", "error"); convertBtn.disabled = false; return; }
       const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      a.href = url;
-      a.download = selectedFile.name.replace(/\.pdf$/i, ".docx");
-      a.click();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = selectedFile.name.replace(/\.pdf$/i, ".docx"); a.click();
       URL.revokeObjectURL(url);
       showStatus("Done! Your Word document has been downloaded.", "success");
-    } catch (e) {
-      showStatus("Network error. Please try again.", "error");
-    }
+    } catch (e) { showStatus("Network error. Please try again.", "error"); }
     convertBtn.disabled = false;
   });
 
-  function showStatus(msg, type) {
-    statusBox.textContent = msg;
-    statusBox.className = "status-box status-" + type;
-    statusBox.hidden = false;
-  }
+  function showStatus(msg, type) { statusBox.textContent = msg; statusBox.className = "status-box status-" + type; statusBox.hidden = false; }
   function hideStatus() { statusBox.hidden = true; }
 })();
 </script>

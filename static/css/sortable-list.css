@@ -2,63 +2,74 @@
 .list-header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  font-size: 0.88rem;
+  align-items: center;
+  font-size: 0.86rem;
   font-weight: 600;
-  color: #1f2328;
+  color: #374151;
   margin-bottom: 8px;
 }
-.list-count { font-weight: 400; }
+.list-header svg { width: 14px; height: 14px; color: #6b7280; margin-right: 4px; }
+.list-count { font-weight: 400; color: #9ca3af; }
 
 .sortable-list {
   list-style: none;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   margin-bottom: 20px;
+  background: #ffffff;
 }
 
 .sortable-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   padding: 11px 14px;
   background: #ffffff;
-  border-bottom: 1px solid #f0f1f3;
+  border-bottom: 1px solid #f3f4f6;
   transition: background 0.1s;
 }
 .sortable-item:last-child { border-bottom: none; }
 
 .sortable-item.sortable-ghost {
-  opacity: 0.45;
+  opacity: 0.4;
   background: #eff6ff;
 }
 .sortable-item.sortable-chosen {
-  background: #f7f8fa;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  background: #f9fafb;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   z-index: 10;
 }
 
 .drag-handle {
-  color: #bcc0c6;
+  color: #d1d5db;
   cursor: grab;
-  font-size: 1.1rem;
   line-height: 1;
   user-select: none;
   flex-shrink: 0;
-  padding: 2px 4px;
-  border-radius: 3px;
-  transition: color 0.12s;
+  padding: 3px 4px;
+  border-radius: 4px;
+  transition: color 0.12s, background 0.12s;
+  display: flex; align-items: center;
 }
-.drag-handle:hover { color: #57606a; }
+.drag-handle svg { width: 16px; height: 16px; }
+.drag-handle:hover { color: #6b7280; background: #f3f4f6; }
 .drag-handle:active { cursor: grabbing; }
+
+.item-file-icon {
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+.item-file-icon svg { width: 15px; height: 15px; }
 
 .item-name {
   flex: 1;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  color: #374151;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .remove-btn {
@@ -66,14 +77,15 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #bcc0c6;
-  font-size: 0.95rem;
+  color: #d1d5db;
   line-height: 1;
-  padding: 3px 6px;
-  border-radius: 4px;
+  padding: 4px 6px;
+  border-radius: 5px;
   transition: color 0.12s, background 0.12s;
+  display: flex; align-items: center;
 }
+.remove-btn svg { width: 14px; height: 14px; }
 .remove-btn:hover {
-  color: #9b1c1c;
-  background: #fff0f0;
+  color: #dc2626;
+  background: #fef2f2;
 }

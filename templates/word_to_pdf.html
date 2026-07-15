@@ -3,19 +3,28 @@
 
 {% block content %}
 <div class="module-page">
-  <h1 class="page-title">Word → PDF</h1>
-  <p class="page-desc">Upload a <code>.docx</code> file and download it as a PDF.</p>
+  <div class="page-header">
+    <div class="page-header-icon icon-blue"><i data-lucide="file-output"></i></div>
+    <div>
+      <h1 class="page-title">Word → PDF</h1>
+      <p class="page-desc">Upload a <code>.docx</code> file and download it as a PDF.</p>
+    </div>
+  </div>
 
   <div class="drop-zone" id="dropZone">
-    <p>Drag &amp; drop your <strong>.docx</strong> file here, or</p>
+    <div class="drop-icon"><i data-lucide="upload-cloud"></i></div>
+    <p class="drop-main">Drag &amp; drop your <strong>.docx</strong> file here</p>
+    <p class="drop-or">or</p>
     <label class="btn btn-secondary">
-      Browse file
+      <i data-lucide="folder-open"></i> Browse file
       <input type="file" id="fileInput" accept=".docx" hidden />
     </label>
     <p class="drop-hint" id="selectedName">No file selected</p>
   </div>
 
-  <button class="btn btn-primary" id="convertBtn" disabled>Convert &amp; Download</button>
+  <button class="btn btn-primary" id="convertBtn" disabled>
+    <i data-lucide="file-down"></i> Convert &amp; Download
+  </button>
 
   <div class="status-box" id="statusBox" hidden></div>
 </div>
@@ -33,60 +42,40 @@
 
   function setFile(file) {
     if (!file || !file.name.toLowerCase().endsWith(".docx")) {
-      showStatus("Please select a .docx file.", "error");
-      return;
+      showStatus("Please select a .docx file.", "error"); return;
     }
     selectedFile = file;
     nameLabel.textContent = file.name;
+    nameLabel.classList.add("has-file");
     convertBtn.disabled = false;
     hideStatus();
   }
 
   fileInput.addEventListener("change", () => setFile(fileInput.files[0]));
-
   dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("drag-over"); });
   dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
-  dropZone.addEventListener("drop", e => {
-    e.preventDefault();
-    dropZone.classList.remove("drag-over");
-    setFile(e.dataTransfer.files[0]);
-  });
+  dropZone.addEventListener("drop", e => { e.preventDefault(); dropZone.classList.remove("drag-over"); setFile(e.dataTransfer.files[0]); });
 
   convertBtn.addEventListener("click", async () => {
     if (!selectedFile) return;
     convertBtn.disabled = true;
     showStatus("Converting… please wait.", "info");
-
     const fd = new FormData();
     fd.append("file", selectedFile);
-
     try {
       const res = await fetch("/word-to-pdf/convert", { method: "POST", body: fd });
-      if (!res.ok) {
-        const err = await res.json();
-        showStatus(err.error || "Conversion failed.", "error");
-        convertBtn.disabled = false;
-        return;
-      }
+      if (!res.ok) { const err = await res.json(); showStatus(err.error || "Conversion failed.", "error"); convertBtn.disabled = false; return; }
       const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      a.href = url;
-      a.download = selectedFile.name.replace(/\.docx$/i, ".pdf");
-      a.click();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = selectedFile.name.replace(/\.docx$/i, ".pdf"); a.click();
       URL.revokeObjectURL(url);
       showStatus("Done! Your PDF has been downloaded.", "success");
-    } catch (e) {
-      showStatus("Network error. Please try again.", "error");
-    }
+    } catch (e) { showStatus("Network error. Please try again.", "error"); }
     convertBtn.disabled = false;
   });
 
-  function showStatus(msg, type) {
-    statusBox.textContent = msg;
-    statusBox.className = "status-box status-" + type;
-    statusBox.hidden = false;
-  }
+  function showStatus(msg, type) { statusBox.textContent = msg; statusBox.className = "status-box status-" + type; statusBox.hidden = false; }
   function hideStatus() { statusBox.hidden = true; }
 })();
 </script>

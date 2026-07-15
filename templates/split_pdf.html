@@ -3,13 +3,20 @@
 
 {% block content %}
 <div class="module-page">
-  <h1 class="page-title">Split PDF</h1>
-  <p class="page-desc">Upload a PDF, then split it by custom page ranges or extract every page individually.</p>
+  <div class="page-header">
+    <div class="page-header-icon icon-amber"><i data-lucide="scissors"></i></div>
+    <div>
+      <h1 class="page-title">Split PDF</h1>
+      <p class="page-desc">Upload a PDF, then split it by custom page ranges or extract every page individually.</p>
+    </div>
+  </div>
 
   <div class="drop-zone" id="dropZone">
-    <p>Drag &amp; drop your <strong>.pdf</strong> file here, or</p>
+    <div class="drop-icon"><i data-lucide="upload-cloud"></i></div>
+    <p class="drop-main">Drag &amp; drop your <strong>.pdf</strong> file here</p>
+    <p class="drop-or">or</p>
     <label class="btn btn-secondary">
-      Browse file
+      <i data-lucide="folder-open"></i> Browse file
       <input type="file" id="fileInput" accept=".pdf" hidden />
     </label>
     <p class="drop-hint" id="selectedName">No file selected</p>
@@ -17,17 +24,17 @@
 
   <div id="splitOptions" hidden>
     <div class="page-info-bar">
-      <span>Pages: <strong id="pageCount">—</strong></span>
+      <i data-lucide="file-text"></i> <span id="pageCount">—</span> pages detected
     </div>
 
     <div class="mode-toggle">
       <label class="radio-label">
-        <input type="radio" name="splitMode" value="range" id="modeRange" />
-        By page ranges
+        <input type="radio" name="splitMode" value="all" id="modeAll" checked />
+        <i data-lucide="copy"></i> Every page separately
       </label>
       <label class="radio-label">
-        <input type="radio" name="splitMode" value="all" id="modeAll" checked />
-        Every page separately
+        <input type="radio" name="splitMode" value="range" id="modeRange" />
+        <i data-lucide="sliders-horizontal"></i> By page ranges
       </label>
     </div>
 
@@ -38,7 +45,9 @@
     </div>
   </div>
 
-  <button class="btn btn-primary" id="splitBtn" disabled>Split &amp; Download ZIP</button>
+  <button class="btn btn-primary" id="splitBtn" disabled>
+    <i data-lucide="package"></i> Split &amp; Download ZIP
+  </button>
 
   <div class="status-box" id="statusBox" hidden></div>
 </div>
@@ -63,28 +72,19 @@
   let totalPages = 0;
 
   function setFile(file) {
-    if (!file || !file.name.toLowerCase().endsWith(".pdf")) {
-      showStatus("Please select a .pdf file.", "error");
-      return;
-    }
+    if (!file || !file.name.toLowerCase().endsWith(".pdf")) { showStatus("Please select a .pdf file.", "error"); return; }
     uploadAndShowOptions(file);
   }
 
   fileInput.addEventListener("change", () => setFile(fileInput.files[0]));
-
   dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("drag-over"); });
   dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
-  dropZone.addEventListener("drop", e => {
-    e.preventDefault();
-    dropZone.classList.remove("drag-over");
-    setFile(e.dataTransfer.files[0]);
-  });
+  dropZone.addEventListener("drop", e => { e.preventDefault(); dropZone.classList.remove("drag-over"); setFile(e.dataTransfer.files[0]); });
 
   async function uploadAndShowOptions(file) {
     splitBtn.disabled = true;
     showStatus("Uploading…", "info");
-    const fd = new FormData();
-    fd.append("file", file);
+    const fd = new FormData(); fd.append("file", file);
     try {
       const res  = await fetch("/split-pdf/upload", { method: "POST", body: fd });
       const data = await res.json();
@@ -92,63 +92,33 @@
       uploadedFilename = data.filename;
       totalPages = data.page_count;
       nameLabel.textContent = file.name;
+      nameLabel.classList.add("has-file");
       pageCount.textContent = totalPages;
       splitOptions.hidden = false;
       splitBtn.disabled = false;
       hideStatus();
-    } catch (e) {
-      showStatus("Network error during upload.", "error");
-    }
+    } catch (e) { showStatus("Network error during upload.", "error"); }
   }
 
-  // Show/hide range input based on mode
   document.querySelectorAll('input[name="splitMode"]').forEach(r => {
-    r.addEventListener("change", () => {
-      rangeWrap.hidden = !modeRange.checked;
-      rangeError.hidden = true;
-    });
+    r.addEventListener("change", () => { rangeWrap.hidden = !modeRange.checked; rangeError.hidden = true; });
   });
 
   splitBtn.addEventListener("click", async () => {
     if (!uploadedFilename) return;
     const mode = modeRange.checked ? "range" : "all";
-
-    if (mode === "range") {
-      if (!validateRanges()) return;
-    }
-
+    if (mode === "range" && !validateRanges()) return;
     splitBtn.disabled = true;
     showStatus("Splitting… please wait.", "info");
-
-    const body = {
-      filename: uploadedFilename,
-      mode,
-      ranges: rangeInput.value.trim(),
-    };
-
     try {
-      const res = await fetch("/split-pdf/split", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        showStatus(err.error || "Split failed.", "error");
-        splitBtn.disabled = false;
-        return;
-      }
+      const res = await fetch("/split-pdf/split", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ filename: uploadedFilename, mode, ranges: rangeInput.value.trim() }) });
+      if (!res.ok) { const err = await res.json(); showStatus(err.error || "Split failed.", "error"); splitBtn.disabled = false; return; }
       const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      a.href = url;
-      a.download = uploadedFilename.replace(/\.pdf$/i, "_split.zip");
-      a.click();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url; a.download = uploadedFilename.replace(/\.pdf$/i, "_split.zip"); a.click();
       URL.revokeObjectURL(url);
       showStatus("Done! Split files downloaded as ZIP.", "success");
-    } catch (e) {
-      showStatus("Network error. Please try again.", "error");
-    }
+    } catch (e) { showStatus("Network error. Please try again.", "error"); }
     splitBtn.disabled = false;
   });
 
@@ -160,36 +130,14 @@
       const single = /^\d+$/.test(part);
       const range  = /^(\d+)-(\d+)$/.exec(part);
       if (!single && !range) { showRangeError(`Invalid range: "${part}"`); return false; }
-      if (range) {
-        const s = parseInt(range[1]), e = parseInt(range[2]);
-        if (s < 1 || e > totalPages || s > e) {
-          showRangeError(`Range ${s}-${e} is out of bounds (1–${totalPages}).`);
-          return false;
-        }
-      }
-      if (single) {
-        const n = parseInt(part);
-        if (n < 1 || n > totalPages) {
-          showRangeError(`Page ${n} is out of bounds (1–${totalPages}).`);
-          return false;
-        }
-      }
+      if (range) { const s = parseInt(range[1]), e = parseInt(range[2]); if (s < 1 || e > totalPages || s > e) { showRangeError(`Range ${s}-${e} is out of bounds (1–${totalPages}).`); return false; } }
+      if (single) { const n = parseInt(part); if (n < 1 || n > totalPages) { showRangeError(`Page ${n} is out of bounds (1–${totalPages}).`); return false; } }
     }
-    rangeError.hidden = true;
-    return true;
+    rangeError.hidden = true; return true;
   }
 
-  function showRangeError(msg) {
-    rangeError.textContent = msg;
-    rangeError.className = "field-hint status-error";
-    rangeError.hidden = false;
-  }
-
-  function showStatus(msg, type) {
-    statusBox.textContent = msg;
-    statusBox.className = "status-box status-" + type;
-    statusBox.hidden = false;
-  }
+  function showRangeError(msg) { rangeError.textContent = msg; rangeError.className = "field-hint status-error"; rangeError.hidden = false; }
+  function showStatus(msg, type) { statusBox.textContent = msg; statusBox.className = "status-box status-" + type; statusBox.hidden = false; }
   function hideStatus() { statusBox.hidden = true; }
 })();
 </script>
