@@ -43,6 +43,7 @@
           <a href="/extract-text" class="nav-link {% if request.path == '/extract-text' %}active{% endif %}"><i data-lucide="text-cursor-input"></i> Extract Text</a>
           <a href="/compress-pdf" class="nav-link {% if request.path == '/compress-pdf' %}active{% endif %}"><i data-lucide="archive"></i> Compress</a>
           <a href="/password-pdf" class="nav-link {% if request.path == '/password-pdf' %}active{% endif %}"><i data-lucide="lock"></i> Password</a>
+          <a href="/gmail/send"   class="nav-link nav-link-gmail {% if request.path.startswith('/gmail') %}active{% endif %}" style="color:#ea4335;"><i data-lucide="mail"></i> Gmail</a>
         </nav>
       </div>
     </div>

@@ -46,6 +46,7 @@ from routes.pdf_to_images import pdf_to_images_bp     # noqa: E402
 from routes.images_to_pdf import images_to_pdf_bp     # noqa: E402
 from routes.password_pdf import password_pdf_bp       # noqa: E402
 from routes.compress_pdf import compress_pdf_bp       # noqa: E402
+from routes.gmail import gmail_bp                     # noqa: E402
 
 app.register_blueprint(word_to_pdf_bp)
 app.register_blueprint(merge_pdf_bp)
@@ -56,6 +57,7 @@ app.register_blueprint(pdf_to_images_bp)
 app.register_blueprint(images_to_pdf_bp)
 app.register_blueprint(password_pdf_bp)
 app.register_blueprint(compress_pdf_bp)
+app.register_blueprint(gmail_bp)
 
 
 @app.route("/")

@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Send via Gmail{% endblock %}
+{% block favicon %}
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ea4335' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='22 12 16 12 14 15 10 15 8 12 2 12'/><path d='M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z'/></svg>" />
+{% endblock %}
+
+{% block content %}
+<div class="module-page">
+  <div class="page-header">
+    <div class="page-header-icon" style="background:#fef2f2; color:#ea4335;">
+      <i data-lucide="mail"></i>
+    </div>
+    <div>
+      <h1 class="page-title">Send via Gmail</h1>
+      <p class="page-desc">Email a file from your session directly via your Gmail account.</p>
+    </div>
+  </div>
+
+  {% if not configured %}
+  <div class="page-note">
+    <i data-lucide="alert-triangle"></i>
+    <span>Gmail is not configured on this server. Place <code>client_secret.json</code> in the app folder to enable this feature.</span>
+  </div>
+  {% else %}
+
+  {% if not authed %}
+  <!-- Not yet authenticated — show connect button -->
+  <div class="gmail-connect-box">
+    <div class="gmail-connect-icon"><i data-lucide="mail"></i></div>
+    <h2 class="gmail-connect-title">Connect your Gmail</h2>
+    <p class="gmail-connect-desc">We'll ask Google for permission to send one email on your behalf. Your emails are never read or stored.</p>
+    <a href="/gmail/authorize?file={{ filename }}&to={{ prefill_to }}" class="btn btn-gmail">
+      <svg viewBox="0 0 24 24" width="18" height="18" style="flex-shrink:0"><path fill="#EA4335" d="M5.26620003,9.76452941 C6.19878754,6.93863203 8.85444915,4.90909091 12,4.90909091 C13.6909091,4.90909091 15.2181818,5.50909091 16.4181818,6.49090909 L19.9090909,3 C17.7818182,1.14545455 15.0545455,0 12,0 C7.27006974,0 3.1977497,2.69829785 1.23999023,6.65002441 L5.26620003,9.76452941 Z"/><path fill="#34A853" d="M16.0407269,18.0125889 C14.9509167,18.7163016 13.5660892,19.0909091 12,19.0909091 C8.86648613,19.0909091 6.21911939,17.076871 5.27698177,14.2678769 L1.23746264,17.3349879 C3.19279051,21.2936293 7.26500293,24 12,24 C14.9328362,24 17.7353462,22.9573905 19.834192,20.9995801 L16.0407269,18.0125889 Z"/><path fill="#4A90E2" d="M19.834192,20.9995801 C22.0291676,18.9520994 23.4545455,15.903663 23.4545455,12 C23.4545455,11.2909091 23.3454545,10.5272727 23.1818182,9.81818182 L12,9.81818182 L12,14.4545455 L18.4363636,14.4545455 C18.1187732,16.013626 17.2662994,17.2212117 16.0407269,18.0125889 L19.834192,20.9995801 Z"/><path fill="#FBBC05" d="M5.27698177,14.2678769 C5.03832634,13.556323 4.90909091,12.7937589 4.90909091,12 C4.90909091,11.2182781 5.03443647,10.4668121 5.26620003,9.76452941 L1.23999023,6.65002441 C0.43658717,8.26043162 0,10.0753848 0,12 C0,13.9159072 0.444780743,15.7350961 1.23746264,17.3349879 L5.27698177,14.2678769 Z"/></svg>
+      Sign in with Google
+    </a>
+  </div>
+
+  {% else %}
+  <!-- Authenticated — show compose form -->
+  <div class="gmail-authed-badge">
+    <i data-lucide="check-circle"></i>
+    <span>Connected to Gmail</span>
+    <button class="gmail-logout-btn" id="logoutBtn" title="Disconnect Gmail">
+      <i data-lucide="log-out"></i> Disconnect
+    </button>
+  </div>
+
+  <div class="form-group">
+    <label class="field-label" for="toInput">To <span class="muted">(recipient email)</span></label>
+    <input type="email" id="toInput" class="text-input" placeholder="recipient@example.com"
+           value="{{ prefill_to }}" required />
+  </div>
+
+  <div class="form-group">
+    <label class="field-label" for="fileSelect">File to send</label>
+    <input type="text" id="fileInput" class="text-input"
+           value="{{ filename }}" placeholder="filename.pdf" />
+    <p class="field-hint">Must be a file already in your session (previously processed).</p>
+  </div>
+
+  <div class="form-group">
+    <label class="field-label" for="subjectInput">Subject</label>
+    <input type="text" id="subjectInput" class="text-input"
+           placeholder="Your file: {{ filename }}" />
+  </div>
+
+  <div class="form-group">
+    <label class="field-label" for="bodyInput">Message <span class="muted">(optional)</span></label>
+    <textarea id="bodyInput" class="text-input" rows="3"
+              placeholder="Please find the attached file from PDF Toolkit."></textarea>
+  </div>
+
+  <button class="btn btn-gmail" id="sendBtn">
+    <i data-lucide="send"></i> Send Email
+  </button>
+
+  <div class="status-box" id="statusBox" hidden></div>
+  {% endif %}
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  const logoutBtn  = document.getElementById("logoutBtn");
+  const sendBtn    = document.getElementById("sendBtn");
+  const statusBox  = document.getElementById("statusBox");
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      await fetch("/gmail/logout", { method: "POST" });
+      location.reload();
+    });
+  }
+
+  if (sendBtn) {
+    sendBtn.addEventListener("click", async () => {
+      const to       = document.getElementById("toInput").value.trim();
+      const filename = document.getElementById("fileInput").value.trim();
+      const subject  = document.getElementById("subjectInput").value.trim();
+      const body     = document.getElementById("bodyInput").value.trim();
+
+      if (!to)       { showStatus("Please enter a recipient email.", "error"); return; }
+      if (!filename) { showStatus("Please enter a filename.", "error"); return; }
+
+      sendBtn.disabled = true;
+      showStatus("Sending email…", "info");
+
+      try {
+        const res  = await fetch("/gmail/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ to, filename, subject, body }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          if (data.auth_required) {
+            showStatus("Session expired. Redirecting to sign in…", "info");
+            setTimeout(() => { location.href = "/gmail/authorize?file=" + encodeURIComponent(filename); }, 1500);
+          } else {
+            showStatus(data.error || "Send failed.", "error");
+          }
+        } else {
+          showStatus("Email sent successfully!", "success");
+        }
+      } catch (e) {
+        showStatus("Network error. Please try again.", "error");
+      }
+      sendBtn.disabled = false;
+    });
+  }
+
+  function showStatus(msg, type) {
+    statusBox.textContent = msg;
+    statusBox.className = "status-box status-" + type;
+    statusBox.hidden = false;
+  }
+})();
+</script>
+{% endblock %}

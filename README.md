@@ -32,6 +32,12 @@ A Flask-based web application for common PDF and document operations, running en
 |--------|-------|-------------|
 | Password Protect / Unlock | `/password-pdf` | Add or remove password protection on any PDF |
 
+### Integrations
+
+| Feature | Route | Description |
+|---------|-------|-------------|
+| Send via Gmail | `/gmail/send` | Email any processed file directly via Gmail OAuth 2.0 |
+
 ---
 
 ## Running Locally
@@ -50,6 +56,58 @@ python app.py
 ```
 
 Then open [http://localhost:5000](http://localhost:5000) in your browser.
+
+---
+
+## Gmail Integration Setup
+
+The **Send via Gmail** feature uses Google OAuth 2.0 and the Gmail API to send processed files directly from the app.
+
+### One-time Setup (Google Cloud Console)
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com) → create a project
+2. **APIs & Services → Library** → search `Gmail API` → **Enable**
+3. **APIs & Services → Credentials** → **Create Credentials → OAuth client ID**
+   - Application type: **Web application**
+   - Authorised redirect URIs:
+     ```
+     http://localhost:5000/gmail/callback
+     https://pdf-toolkit-ksux.onrender.com/gmail/callback
+     ```
+4. Download the JSON file and rename it `client_secret.json`
+5. **APIs & Services → OAuth consent screen**
+   - Add scope: `https://www.googleapis.com/auth/gmail.send`
+   - Add your email as a test user
+
+### Local setup
+
+Place `client_secret.json` inside the `pdf-toolkit/` folder. It is gitignored and will never be committed.
+
+### Render (production) setup
+
+Since `client_secret.json` is gitignored, upload it via Render's **Secret Files** feature:
+
+1. Render dashboard → your service → **Environment** tab
+2. Scroll to **Secret Files** → click **Add Secret File**
+3. Filename: `/opt/render/project/src/client_secret.json`
+4. Paste the full contents of your `client_secret.json`
+5. Save and redeploy
+
+### How it works
+
+```
+User finishes processing a file
+        ↓
+Click "Gmail" in the nav → /gmail/send
+        ↓
+First time: "Sign in with Google" → Google OAuth consent screen
+        ↓
+Redirected back → compose form pre-filled with filename
+        ↓
+Enter recipient, optional subject & message → Send
+        ↓
+File sent as attachment via Gmail API ✅
+```
 
 ---
 
@@ -101,8 +159,19 @@ To switch Render to a different branch: Render dashboard → Settings → Branch
 | `pymupdf` | PDF → Images, Compress PDF |
 | `Pillow` | Image processing for Images → PDF |
 | `img2pdf` | Lossless image to PDF conversion |
+| `google-auth` | Google OAuth 2.0 token handling |
+| `google-auth-oauthlib` | OAuth flow for Gmail API |
+| `google-api-python-client` | Gmail API client |
 | `gunicorn` | Production WSGI server |
 | `libreoffice` *(system)* | Word → PDF on Linux (Docker) |
+
+---
+
+## Security Notes
+
+- `client_secret.json` is gitignored — **never commit it to version control**
+- Gmail credentials are stored only in the Flask server-side session — never in the browser or database
+- The app only requests the `gmail.send` scope — it cannot read, delete, or access any emails
 
 ---
 
@@ -110,4 +179,5 @@ To switch Render to a different branch: Render dashboard → Settings → Branch
 
 - Add watermark to PDF
 - Rotate / reorder pages
-- Unlock / remove PDF password (standalone)
+- AI PDF Summariser (OpenAI / Gemini)
+- Google Drive file picker

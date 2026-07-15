@@ -87,7 +87,7 @@ code {
 }
 .logo-icon svg { width: 18px; height: 18px; color: #60a5fa; }
 
-.site-nav { display: flex; gap: 1px; flex-wrap: nowrap; }
+.site-nav { display: flex; gap: 1px; flex-wrap: nowrap; margin-left: auto; }
 .nav-link {
   color: #9ca3af;
   font-size: 0.81rem;
@@ -603,3 +603,110 @@ code {
 .tab-btn svg { width: 14px; height: 14px; }
 .tab-btn:hover { background: #e5e7eb; color: #374151; }
 .tab-btn.active { background: #ffffff; color: #1f2328; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+/* ─── Gmail Send Feature ────────────────────────────────────────────────────── */
+.btn-gmail {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #dadce0;
+  background: #ffffff;
+  color: #3c4043;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: background 0.15s, box-shadow 0.15s;
+  text-decoration: none;
+  margin-bottom: 16px;
+}
+.btn-gmail:hover { background: #f8f9fa; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+.btn-gmail:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-gmail svg { flex-shrink: 0; }
+
+.gmail-connect-box {
+  text-align: center;
+  padding: 40px 24px;
+  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+.gmail-connect-icon {
+  width: 56px; height: 56px;
+  background: #fef2f2;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+  color: #ea4335;
+}
+.gmail-connect-icon svg { width: 26px; height: 26px; }
+.gmail-connect-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+.gmail-connect-desc  { font-size: 0.88rem; color: #6b7280; max-width: 380px; margin: 0 auto 24px; line-height: 1.6; }
+
+.gmail-authed-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 9px 14px;
+  margin-bottom: 20px;
+}
+.gmail-authed-badge svg { width: 16px; height: 16px; color: #16a34a; }
+.gmail-logout-btn {
+  display: flex; align-items: center; gap: 4px;
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: #6b7280;
+  padding: 3px 8px;
+  border-radius: 5px;
+  transition: background 0.12s, color 0.12s;
+}
+.gmail-logout-btn:hover { background: #fef2f2; color: #dc2626; }
+.gmail-logout-btn svg { width: 13px; height: 13px; }
+
+.form-group { margin-bottom: 16px; }
+.form-group textarea.text-input { resize: vertical; min-height: 80px; }
+
+/* "Send via Gmail" floating widget on module pages */
+.send-widget {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin-top: 12px;
+  font-size: 0.86rem;
+  color: #374151;
+}
+.send-widget svg { width: 15px; height: 15px; color: #ea4335; flex-shrink: 0; }
+.send-widget-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #ffffff;
+  border: 1px solid #dadce0;
+  color: #3c4043;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.send-widget-btn:hover { background: #f1f3f4; }
+.send-widget-btn svg { width: 13px; height: 13px; }
