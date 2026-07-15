@@ -174,10 +174,3 @@ To switch Render to a different branch: Render dashboard → Settings → Branch
 - The app only requests the `gmail.send` scope — it cannot read, delete, or access any emails
 
 ---
-
-## Future Modules (Planned)
-
-- Add watermark to PDF
-- Rotate / reorder pages
-- AI PDF Summariser (OpenAI / Gemini)
-- Google Drive file picker
