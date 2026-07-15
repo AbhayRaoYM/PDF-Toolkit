@@ -56,6 +56,15 @@ git commit -m "your change"
 git push
 ```
 
+## To keep different versions
+````
+  git log --oneline
+  git checkout -b old-ui <commit-id-before-redesign>
+  git push origin old-ui
+````
+
+To switch Render to the old UI, go to Render dashboard → Settings → Branch → change from main to old-ui.
+
 ---
 
 ## Future Modules (Planned)
