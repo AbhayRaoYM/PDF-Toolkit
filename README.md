@@ -2,6 +2,10 @@
 
 A Flask-based web application for common PDF and document operations, running entirely in your browser with no third-party cloud services.
 
+🌐 **Live at: [https://pdf-toolkit-ksux.onrender.com](https://pdf-toolkit-ksux.onrender.com)**
+
+---
+
 ## Modules
 
 | Module | Route | Description |
@@ -11,33 +15,48 @@ A Flask-based web application for common PDF and document operations, running en
 | Split PDF | `/split-pdf` | Split by page ranges or every page individually |
 | PDF → Word | `/pdf-to-word` | Convert a PDF back to an editable `.docx` |
 
-## Setup
+---
+
+## Running Locally
 
 ### Requirements
 
-- Python 3.9+
-- **For Word → PDF conversion only:** Microsoft Word (Windows / macOS) **or** LibreOffice (Linux / macOS). The `docx2pdf` library delegates the actual conversion to one of these tools. Install LibreOffice on Linux with `sudo apt install libreoffice`.
+- Python 3.11+
+- **For Word → PDF conversion only:** Microsoft Word (Windows / macOS) **or** LibreOffice (Linux / macOS).
 
-### Install Python dependencies
+### Install & Run
 
 ```bash
 cd pdf-toolkit
 pip install -r requirements.txt
-```
-
-## Running the App
-
-```bash
 python app.py
 ```
 
 Then open [http://localhost:5000](http://localhost:5000) in your browser.
 
+---
+
 ## File Handling
 
-Uploaded files are stored in a `uploads/<session-id>/` folder scoped to your browser session. Files persist across operations so you can reuse them (e.g. upload a PDF once and both merge and split it). To clear your session files, send a `POST /clear-session` request or restart the server.
+Uploaded files are stored in an `uploads/<session-id>/` folder scoped to your browser session. Files persist across operations so you can reuse them (e.g. upload a PDF once and both merge and split it). To clear your session files, send a `POST /clear-session` request or restart the server.
 
 The `uploads/` directory is excluded from version control.
+
+---
+
+## Deployment
+
+The app is deployed on [Render](https://render.com) using Docker (see [`Dockerfile`](Dockerfile)). LibreOffice is installed inside the container to support Word → PDF conversion on Linux.
+
+Every push to the `main` branch on GitHub triggers an automatic redeploy:
+
+```bash
+git add .
+git commit -m "your change"
+git push
+```
+
+---
 
 ## Future Modules (Planned)
 
@@ -46,14 +65,3 @@ The `uploads/` directory is excluded from version control.
 - Extract images / PDF to PNG per page
 - Rotate / reorder pages
 - Password protect / unlock PDF
-
-- When you see Your service is live 🎉, your app is public at:
-https://pdf-toolkit.onrender.com
-
-## Future updates
-
-Every time you push to GitHub, Render auto-redeploys:
-
- - git add .
- - git commit -m "your change"
- - git push
