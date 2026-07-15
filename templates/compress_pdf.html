@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Compress PDF{% endblock %}
+{% block favicon %}
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230d9488' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='21 8 21 21 3 21 3 8'/><rect x='1' y='3' width='22' height='5'/><line x1='10' y1='12' x2='14' y2='12'/></svg>" />
+{% endblock %}
+{% block content %}
+<div class="module-page">
+  <div class="page-header">
+    <div class="page-header-icon icon-teal"><i data-lucide="archive"></i></div>
+    <div>
+      <h1 class="page-title">Compress PDF</h1>
+      <p class="page-desc">Reduce PDF file size by re-compressing images with selectable quality.</p>
+    </div>
+  </div>
+  <div class="page-note">
+    <i data-lucide="info"></i>
+    <span>Best results on PDFs with embedded images. Text-only PDFs will see minimal reduction.</span>
+  </div>
+  <div class="drop-zone" id="dropZone">
+    <div class="drop-icon"><i data-lucide="upload-cloud"></i></div>
+    <p class="drop-main">Drag &amp; drop your <strong>.pdf</strong> file here</p>
+    <p class="drop-or">or</p>
+    <label class="btn btn-secondary"><i data-lucide="folder-open"></i> Browse file
+      <input type="file" id="fileInput" accept=".pdf" hidden />
+    </label>
+    <p class="drop-hint" id="selectedName">No file selected</p>
+  </div>
+  <div class="options-row">
+    <div class="option-group">
+      <label class="field-label">Compression quality</label>
+      <div class="btn-group">
+        <label class="btn-option"><input type="radio" name="quality" value="high" /> High quality<br><span class="muted" style="font-size:0.75rem">Larger file</span></label>
+        <label class="btn-option selected"><input type="radio" name="quality" value="medium" checked /> Balanced<br><span class="muted" style="font-size:0.75rem">Recommended</span></label>
+        <label class="btn-option"><input type="radio" name="quality" value="low" /> Max compression<br><span class="muted" style="font-size:0.75rem">Smallest file</span></label>
+      </div>
+    </div>
+  </div>
+  <button class="btn btn-primary" id="compressBtn" disabled>
+    <i data-lucide="archive"></i> Compress &amp; Download
+  </button>
+  <div class="status-box" id="statusBox" hidden></div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+(function () {
+  const dropZone = document.getElementById("dropZone");
+  const fileInput = document.getElementById("fileInput");
+  const nameLabel = document.getElementById("selectedName");
+  const compressBtn = document.getElementById("compressBtn");
+  const statusBox = document.getElementById("statusBox");
+  let selectedFile = null;
+
+  // Highlight selected quality button
+  document.querySelectorAll('input[name="quality"]').forEach(r => {
+    r.addEventListener("change", () => {
+      document.querySelectorAll(".btn-option").forEach(el => el.classList.remove("selected"));
+      r.closest(".btn-option").classList.add("selected");
+    });
+  });
+
+  function setFile(file) {
+    if (!file || !file.name.toLowerCase().endsWith(".pdf")) { showStatus("Please select a .pdf file.", "error"); return; }
+    selectedFile = file; nameLabel.textContent = file.name; nameLabel.classList.add("has-file"); compressBtn.disabled = false; hideStatus();
+  }
+  fileInput.addEventListener("change", () => setFile(fileInput.files[0]));
+  dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("drag-over"); });
+  dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
+  dropZone.addEventListener("drop", e => { e.preventDefault(); dropZone.classList.remove("drag-over"); setFile(e.dataTransfer.files[0]); });
+
+  compressBtn.addEventListener("click", async () => {
+    if (!selectedFile) return;
+    const quality = document.querySelector('input[name="quality"]:checked').value;
+    compressBtn.disabled = true; showStatus("Compressing… this may take a moment.", "info");
+    const fd = new FormData(); fd.append("file", selectedFile); fd.append("quality", quality);
+    try {
+      const res = await fetch("/compress-pdf/compress", { method: "POST", body: fd });
+      if (!res.ok) { const err = await res.json(); showStatus(err.error || "Compression failed.", "error"); compressBtn.disabled = false; return; }
+      const origSize = res.headers.get("X-Original-Size");
+      const compSize = res.headers.get("X-Compressed-Size");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob); const a = document.createElement("a");
+      a.href = url; a.download = selectedFile.name.replace(/\.pdf$/i, `_compressed_${quality}.pdf`); a.click(); URL.revokeObjectURL(url);
+      if (origSize && compSize) {
+        const saved = (((origSize - compSize) / origSize) * 100).toFixed(1);
+        const fmt = n => (n / 1024).toFixed(0) + " KB";
+        showStatus(`Done! ${fmt(origSize)} → ${fmt(compSize)} (${saved}% smaller)`, "success");
+      } else {
+        showStatus("Done! Compressed PDF downloaded.", "success");
+      }
+    } catch (e) { showStatus("Network error. Please try again.", "error"); }
+    compressBtn.disabled = false;
+  });
+  function showStatus(msg, type) { statusBox.textContent = msg; statusBox.className = "status-box status-" + type; statusBox.hidden = false; }
+  function hideStatus() { statusBox.hidden = true; }
+})();
+</script>
+{% endblock %}

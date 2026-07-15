@@ -4,4 +4,7 @@ python-docx
 docx2pdf
 pypdf
 pdf2docx
+pymupdf
+Pillow
+img2pdf
 gunicorn

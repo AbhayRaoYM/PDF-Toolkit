@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}PDF → Images{% endblock %}
+{% block favicon %}
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230891b2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='8.5' cy='8.5' r='1.5'/><polyline points='21 15 16 10 5 21'/></svg>" />
+{% endblock %}
+{% block content %}
+<div class="module-page">
+  <div class="page-header">
+    <div class="page-header-icon icon-cyan"><i data-lucide="image"></i></div>
+    <div>
+      <h1 class="page-title">PDF → Images</h1>
+      <p class="page-desc">Convert each PDF page into a PNG or JPG image. Downloaded as a ZIP.</p>
+    </div>
+  </div>
+  <div class="drop-zone" id="dropZone">
+    <div class="drop-icon"><i data-lucide="upload-cloud"></i></div>
+    <p class="drop-main">Drag &amp; drop your <strong>.pdf</strong> file here</p>
+    <p class="drop-or">or</p>
+    <label class="btn btn-secondary"><i data-lucide="folder-open"></i> Browse file
+      <input type="file" id="fileInput" accept=".pdf" hidden />
+    </label>
+    <p class="drop-hint" id="selectedName">No file selected</p>
+  </div>
+  <div class="options-row">
+    <div class="option-group">
+      <label class="field-label">Format</label>
+      <div class="btn-group">
+        <label class="btn-option"><input type="radio" name="fmt" value="png" checked /> PNG</label>
+        <label class="btn-option"><input type="radio" name="fmt" value="jpg" /> JPG</label>
+      </div>
+    </div>
+    <div class="option-group">
+      <label class="field-label">Quality (DPI)</label>
+      <div class="btn-group">
+        <label class="btn-option"><input type="radio" name="dpi" value="96" /> Screen (96)</label>
+        <label class="btn-option"><input type="radio" name="dpi" value="150" checked /> Standard (150)</label>
+        <label class="btn-option"><input type="radio" name="dpi" value="300" /> Print (300)</label>
+      </div>
+    </div>
+  </div>
+  <button class="btn btn-primary" id="convertBtn" disabled>
+    <i data-lucide="image-down"></i> Convert &amp; Download ZIP
+  </button>
+  <div class="status-box" id="statusBox" hidden></div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+(function () {
+  const dropZone = document.getElementById("dropZone");
+  const fileInput = document.getElementById("fileInput");
+  const nameLabel = document.getElementById("selectedName");
+  const convertBtn = document.getElementById("convertBtn");
+  const statusBox = document.getElementById("statusBox");
+  let selectedFile = null;
+
+  function setFile(file) {
+    if (!file || !file.name.toLowerCase().endsWith(".pdf")) { showStatus("Please select a .pdf file.", "error"); return; }
+    selectedFile = file; nameLabel.textContent = file.name; nameLabel.classList.add("has-file"); convertBtn.disabled = false; hideStatus();
+  }
+  fileInput.addEventListener("change", () => setFile(fileInput.files[0]));
+  dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("drag-over"); });
+  dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
+  dropZone.addEventListener("drop", e => { e.preventDefault(); dropZone.classList.remove("drag-over"); setFile(e.dataTransfer.files[0]); });
+
+  convertBtn.addEventListener("click", async () => {
+    if (!selectedFile) return;
+    const fmt = document.querySelector('input[name="fmt"]:checked').value;
+    const dpi = document.querySelector('input[name="dpi"]:checked').value;
+    convertBtn.disabled = true; showStatus("Converting pages to images…", "info");
+    const fd = new FormData(); fd.append("file", selectedFile); fd.append("format", fmt); fd.append("dpi", dpi);
+    try {
+      const res = await fetch("/pdf-to-images/convert", { method: "POST", body: fd });
+      if (!res.ok) { const err = await res.json(); showStatus(err.error || "Conversion failed.", "error"); convertBtn.disabled = false; return; }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url; a.download = selectedFile.name.replace(/\.pdf$/i, "_images.zip"); a.click(); URL.revokeObjectURL(url);
+      showStatus("Done! Images downloaded as ZIP.", "success");
+    } catch (e) { showStatus("Network error. Please try again.", "error"); }
+    convertBtn.disabled = false;
+  });
+  function showStatus(msg, type) { statusBox.textContent = msg; statusBox.className = "status-box status-" + type; statusBox.hidden = false; }
+  function hideStatus() { statusBox.hidden = true; }
+})();
+</script>
+{% endblock %}

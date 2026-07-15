@@ -37,44 +37,30 @@ def clear_session():
 
 
 # ── Module routes (imported below to avoid circular imports) ──────────────────
-from routes.word_to_pdf import word_to_pdf_bp   # noqa: E402
-from routes.merge_pdf import merge_pdf_bp         # noqa: E402
-from routes.split_pdf import split_pdf_bp         # noqa: E402
-from routes.pdf_to_word import pdf_to_word_bp     # noqa: E402
+from routes.word_to_pdf import word_to_pdf_bp       # noqa: E402
+from routes.merge_pdf import merge_pdf_bp             # noqa: E402
+from routes.split_pdf import split_pdf_bp             # noqa: E402
+from routes.pdf_to_word import pdf_to_word_bp         # noqa: E402
+from routes.extract_text import extract_text_bp       # noqa: E402
+from routes.pdf_to_images import pdf_to_images_bp     # noqa: E402
+from routes.images_to_pdf import images_to_pdf_bp     # noqa: E402
+from routes.password_pdf import password_pdf_bp       # noqa: E402
+from routes.compress_pdf import compress_pdf_bp       # noqa: E402
 
 app.register_blueprint(word_to_pdf_bp)
 app.register_blueprint(merge_pdf_bp)
 app.register_blueprint(split_pdf_bp)
 app.register_blueprint(pdf_to_word_bp)
+app.register_blueprint(extract_text_bp)
+app.register_blueprint(pdf_to_images_bp)
+app.register_blueprint(images_to_pdf_bp)
+app.register_blueprint(password_pdf_bp)
+app.register_blueprint(compress_pdf_bp)
 
 
 @app.route("/")
 def index():
     return render_template("index.html")
-
-
-@app.route("/debug/soffice")
-def debug_soffice():
-    """Temporary debug route — remove after confirming soffice path."""
-    import shutil as sh
-    results = {}
-    for name in ("soffice", "libreoffice"):
-        results[name] = sh.which(name)
-    known = [
-        "/usr/bin/soffice",
-        "/usr/lib/libreoffice/program/soffice",
-        "/usr/local/bin/soffice",
-        "/opt/libreoffice/program/soffice",
-    ]
-    results["known_paths"] = {p: os.path.isfile(p) for p in known}
-    try:
-        find = subprocess.run(["find", "/usr", "-name", "soffice", "-type", "f"],
-                              capture_output=True, text=True, timeout=10)
-        results["find_output"] = find.stdout.strip()
-    except Exception as e:
-        results["find_error"] = str(e)
-    results["PATH"] = os.environ.get("PATH", "")
-    return jsonify(results)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Extract Text{% endblock %}
+{% block favicon %}
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e11d48' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='4 7 4 4 20 4 20 7'/><line x1='9' y1='20' x2='15' y2='20'/><line x1='12' y1='4' x2='12' y2='20'/></svg>" />
+{% endblock %}
+{% block content %}
+<div class="module-page">
+  <div class="page-header">
+    <div class="page-header-icon icon-rose"><i data-lucide="text-cursor-input"></i></div>
+    <div>
+      <h1 class="page-title">Extract Text</h1>
+      <p class="page-desc">Pull all text content from a PDF and download it as a <code>.txt</code> file.</p>
+    </div>
+  </div>
+  <div class="page-note">
+    <i data-lucide="info"></i>
+    <span>Works on text-based PDFs only. Scanned image PDFs contain no embedded text to extract.</span>
+  </div>
+  <div class="drop-zone" id="dropZone">
+    <div class="drop-icon"><i data-lucide="upload-cloud"></i></div>
+    <p class="drop-main">Drag &amp; drop your <strong>.pdf</strong> file here</p>
+    <p class="drop-or">or</p>
+    <label class="btn btn-secondary">
+      <i data-lucide="folder-open"></i> Browse file
+      <input type="file" id="fileInput" accept=".pdf" hidden />
+    </label>
+    <p class="drop-hint" id="selectedName">No file selected</p>
+  </div>
+  <button class="btn btn-primary" id="extractBtn" disabled>
+    <i data-lucide="text-cursor-input"></i> Extract &amp; Download
+  </button>
+  <div class="status-box" id="statusBox" hidden></div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+(function () {
+  const dropZone = document.getElementById("dropZone");
+  const fileInput = document.getElementById("fileInput");
+  const nameLabel = document.getElementById("selectedName");
+  const extractBtn = document.getElementById("extractBtn");
+  const statusBox = document.getElementById("statusBox");
+  let selectedFile = null;
+
+  function setFile(file) {
+    if (!file || !file.name.toLowerCase().endsWith(".pdf")) { showStatus("Please select a .pdf file.", "error"); return; }
+    selectedFile = file; nameLabel.textContent = file.name; nameLabel.classList.add("has-file"); extractBtn.disabled = false; hideStatus();
+  }
+  fileInput.addEventListener("change", () => setFile(fileInput.files[0]));
+  dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("drag-over"); });
+  dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
+  dropZone.addEventListener("drop", e => { e.preventDefault(); dropZone.classList.remove("drag-over"); setFile(e.dataTransfer.files[0]); });
+
+  extractBtn.addEventListener("click", async () => {
+    if (!selectedFile) return;
+    extractBtn.disabled = true; showStatus("Extracting text…", "info");
+    const fd = new FormData(); fd.append("file", selectedFile);
+    try {
+      const res = await fetch("/extract-text/extract", { method: "POST", body: fd });
+      if (!res.ok) { const err = await res.json(); showStatus(err.error || "Extraction failed.", "error"); extractBtn.disabled = false; return; }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url; a.download = selectedFile.name.replace(/\.pdf$/i, ".txt"); a.click(); URL.revokeObjectURL(url);
+      showStatus("Done! Text file downloaded.", "success");
+    } catch (e) { showStatus("Network error. Please try again.", "error"); }
+    extractBtn.disabled = false;
+  });
+  function showStatus(msg, type) { statusBox.textContent = msg; statusBox.className = "status-box status-" + type; statusBox.hidden = false; }
+  function hideStatus() { statusBox.hidden = true; }
+})();
+</script>
+{% endblock %}
