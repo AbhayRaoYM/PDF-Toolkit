@@ -2,9 +2,13 @@ FROM python:3.11-slim
 
 # Install LibreOffice for Word→PDF conversion
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends libreoffice && \
+    apt-get install -y --no-install-recommends \
+        libreoffice \
+        libreoffice-writer \
+        default-jre-headless && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    soffice --version
 
 WORKDIR /app
 

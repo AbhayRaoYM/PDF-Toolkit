@@ -1,6 +1,20 @@
 import os
 import sys
+import shutil
 import subprocess
+
+
+def _find_soffice():
+    """Find the LibreOffice binary — tries common names and paths."""
+    for name in ("soffice", "libreoffice"):
+        path = shutil.which(name)
+        if path:
+            return path
+    # Fallback: known Debian/Ubuntu install path
+    fallback = "/usr/lib/libreoffice/program/soffice"
+    if os.path.isfile(fallback):
+        return fallback
+    return None
 
 
 def convert(docx_path: str, output_dir: str) -> str:
@@ -14,9 +28,15 @@ def convert(docx_path: str, output_dir: str) -> str:
         _convert(docx_path, pdf_path)
     else:
         # Linux — use LibreOffice headless
+        soffice = _find_soffice()
+        if not soffice:
+            raise RuntimeError(
+                "LibreOffice is not installed on this server. "
+                "Cannot convert Word to PDF."
+            )
         result = subprocess.run(
             [
-                "libreoffice", "--headless", "--convert-to", "pdf",
+                soffice, "--headless", "--convert-to", "pdf",
                 "--outdir", output_dir,
                 docx_path,
             ],
