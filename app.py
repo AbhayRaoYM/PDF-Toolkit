@@ -1,7 +1,8 @@
 import os
 import uuid
 import shutil
-from flask import Flask, render_template, session, request
+import subprocess
+from flask import Flask, render_template, session, request, jsonify
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
@@ -50,6 +51,30 @@ app.register_blueprint(pdf_to_word_bp)
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/debug/soffice")
+def debug_soffice():
+    """Temporary debug route — remove after confirming soffice path."""
+    import shutil as sh
+    results = {}
+    for name in ("soffice", "libreoffice"):
+        results[name] = sh.which(name)
+    known = [
+        "/usr/bin/soffice",
+        "/usr/lib/libreoffice/program/soffice",
+        "/usr/local/bin/soffice",
+        "/opt/libreoffice/program/soffice",
+    ]
+    results["known_paths"] = {p: os.path.isfile(p) for p in known}
+    try:
+        find = subprocess.run(["find", "/usr", "-name", "soffice", "-type", "f"],
+                              capture_output=True, text=True, timeout=10)
+        results["find_output"] = find.stdout.strip()
+    except Exception as e:
+        results["find_error"] = str(e)
+    results["PATH"] = os.environ.get("PATH", "")
+    return jsonify(results)
 
 
 if __name__ == "__main__":
