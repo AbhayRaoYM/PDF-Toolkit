@@ -46,3 +46,12 @@ The `uploads/` directory is excluded from version control.
 - Extract images / PDF to PNG per page
 - Rotate / reorder pages
 - Password protect / unlock PDF
+
+- When you see Your service is live 🎉, your app is public at:
+https://pdf-toolkit.onrender.com
+
+#Future updates
+Every time you push to GitHub, Render auto-redeploys:
+git add .
+git commit -m "your change"
+git push
