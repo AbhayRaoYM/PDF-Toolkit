@@ -14,36 +14,55 @@
 </head>
 <body>
   <header class="site-header">
-    <div class="header-inner">
-      <a class="site-logo" href="/">
-        <span class="logo-icon"><i data-lucide="file-text"></i></span>
-        PDF Toolkit
-      </a>
-      <nav class="site-nav">
-        <a href="/word-to-pdf"   class="nav-link {% if request.path == '/word-to-pdf' %}active{% endif %}"><i data-lucide="file-output"></i> Word→PDF</a>
-        <a href="/pdf-to-word"   class="nav-link {% if request.path == '/pdf-to-word' %}active{% endif %}"><i data-lucide="file-input"></i> PDF→Word</a>
-        <a href="/merge-pdf"     class="nav-link {% if request.path == '/merge-pdf' %}active{% endif %}"><i data-lucide="layers"></i> Merge</a>
-        <a href="/split-pdf"     class="nav-link {% if request.path == '/split-pdf' %}active{% endif %}"><i data-lucide="scissors"></i> Split</a>
-        <a href="/pdf-to-images" class="nav-link {% if request.path == '/pdf-to-images' %}active{% endif %}"><i data-lucide="image"></i> →Images</a>
-        <a href="/images-to-pdf" class="nav-link {% if request.path == '/images-to-pdf' %}active{% endif %}"><i data-lucide="images"></i> Images→</a>
-        <a href="/extract-text"  class="nav-link {% if request.path == '/extract-text' %}active{% endif %}"><i data-lucide="text-cursor-input"></i> Extract</a>
-        <a href="/compress-pdf"  class="nav-link {% if request.path == '/compress-pdf' %}active{% endif %}"><i data-lucide="archive"></i> Compress</a>
-        <a href="/password-pdf"  class="nav-link {% if request.path == '/password-pdf' %}active{% endif %}"><i data-lucide="lock"></i> Password</a>
-      </nav>
-      <button class="nav-hamburger" id="navToggle" aria-label="Toggle menu">
-        <i data-lucide="menu"></i>
-      </button>
+    <!-- Row 1: Logo + Conversion tools -->
+    <div class="header-row header-row-1">
+      <div class="header-inner">
+        <a class="site-logo" href="/">
+          <span class="logo-icon"><i data-lucide="file-text"></i></span>
+          PDF Toolkit
+        </a>
+        <span class="nav-group-label">Conversion</span>
+        <nav class="site-nav">
+          <a href="/word-to-pdf"   class="nav-link {% if request.path == '/word-to-pdf' %}active{% endif %}"><i data-lucide="file-output"></i> Word → PDF</a>
+          <a href="/pdf-to-word"   class="nav-link {% if request.path == '/pdf-to-word' %}active{% endif %}"><i data-lucide="file-input"></i> PDF → Word</a>
+          <a href="/pdf-to-images" class="nav-link {% if request.path == '/pdf-to-images' %}active{% endif %}"><i data-lucide="image"></i> PDF → Images</a>
+          <a href="/images-to-pdf" class="nav-link {% if request.path == '/images-to-pdf' %}active{% endif %}"><i data-lucide="images"></i> Images → PDF</a>
+        </nav>
+        <button class="nav-hamburger" id="navToggle" aria-label="Toggle menu">
+          <i data-lucide="menu"></i>
+        </button>
+      </div>
     </div>
+    <!-- Row 2: Organise + Security tools -->
+    <div class="header-row header-row-2">
+      <div class="header-inner">
+        <span class="nav-group-label">Organise &amp; Security</span>
+        <nav class="site-nav">
+          <a href="/merge-pdf"    class="nav-link {% if request.path == '/merge-pdf' %}active{% endif %}"><i data-lucide="layers"></i> Merge</a>
+          <a href="/split-pdf"    class="nav-link {% if request.path == '/split-pdf' %}active{% endif %}"><i data-lucide="scissors"></i> Split</a>
+          <a href="/extract-text" class="nav-link {% if request.path == '/extract-text' %}active{% endif %}"><i data-lucide="text-cursor-input"></i> Extract Text</a>
+          <a href="/compress-pdf" class="nav-link {% if request.path == '/compress-pdf' %}active{% endif %}"><i data-lucide="archive"></i> Compress</a>
+          <a href="/password-pdf" class="nav-link {% if request.path == '/password-pdf' %}active{% endif %}"><i data-lucide="lock"></i> Password</a>
+        </nav>
+      </div>
+    </div>
+    <!-- Mobile nav (all links) -->
     <nav class="mobile-nav" id="mobileNav">
-      <a href="/word-to-pdf"   class="nav-link {% if request.path == '/word-to-pdf' %}active{% endif %}"><i data-lucide="file-output"></i> Word → PDF</a>
-      <a href="/pdf-to-word"   class="nav-link {% if request.path == '/pdf-to-word' %}active{% endif %}"><i data-lucide="file-input"></i> PDF → Word</a>
-      <a href="/merge-pdf"     class="nav-link {% if request.path == '/merge-pdf' %}active{% endif %}"><i data-lucide="layers"></i> Merge PDF</a>
-      <a href="/split-pdf"     class="nav-link {% if request.path == '/split-pdf' %}active{% endif %}"><i data-lucide="scissors"></i> Split PDF</a>
-      <a href="/pdf-to-images" class="nav-link {% if request.path == '/pdf-to-images' %}active{% endif %}"><i data-lucide="image"></i> PDF → Images</a>
-      <a href="/images-to-pdf" class="nav-link {% if request.path == '/images-to-pdf' %}active{% endif %}"><i data-lucide="images"></i> Images → PDF</a>
-      <a href="/extract-text"  class="nav-link {% if request.path == '/extract-text' %}active{% endif %}"><i data-lucide="text-cursor-input"></i> Extract Text</a>
-      <a href="/compress-pdf"  class="nav-link {% if request.path == '/compress-pdf' %}active{% endif %}"><i data-lucide="archive"></i> Compress PDF</a>
-      <a href="/password-pdf"  class="nav-link {% if request.path == '/password-pdf' %}active{% endif %}"><i data-lucide="lock"></i> Password Protect</a>
+      <div class="mobile-nav-group">
+        <span class="mobile-nav-label">Conversion</span>
+        <a href="/word-to-pdf"   class="nav-link {% if request.path == '/word-to-pdf' %}active{% endif %}"><i data-lucide="file-output"></i> Word → PDF</a>
+        <a href="/pdf-to-word"   class="nav-link {% if request.path == '/pdf-to-word' %}active{% endif %}"><i data-lucide="file-input"></i> PDF → Word</a>
+        <a href="/pdf-to-images" class="nav-link {% if request.path == '/pdf-to-images' %}active{% endif %}"><i data-lucide="image"></i> PDF → Images</a>
+        <a href="/images-to-pdf" class="nav-link {% if request.path == '/images-to-pdf' %}active{% endif %}"><i data-lucide="images"></i> Images → PDF</a>
+      </div>
+      <div class="mobile-nav-group">
+        <span class="mobile-nav-label">Organise &amp; Security</span>
+        <a href="/merge-pdf"    class="nav-link {% if request.path == '/merge-pdf' %}active{% endif %}"><i data-lucide="layers"></i> Merge PDF</a>
+        <a href="/split-pdf"    class="nav-link {% if request.path == '/split-pdf' %}active{% endif %}"><i data-lucide="scissors"></i> Split PDF</a>
+        <a href="/extract-text" class="nav-link {% if request.path == '/extract-text' %}active{% endif %}"><i data-lucide="text-cursor-input"></i> Extract Text</a>
+        <a href="/compress-pdf" class="nav-link {% if request.path == '/compress-pdf' %}active{% endif %}"><i data-lucide="archive"></i> Compress PDF</a>
+        <a href="/password-pdf" class="nav-link {% if request.path == '/password-pdf' %}active{% endif %}"><i data-lucide="lock"></i> Password Protect</a>
+      </div>
     </nav>
   </header>
 
