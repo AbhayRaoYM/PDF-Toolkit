@@ -50,8 +50,10 @@ The `uploads/` directory is excluded from version control.
 - When you see Your service is live 🎉, your app is public at:
 https://pdf-toolkit.onrender.com
 
-#Future updates
+## Future updates
+
 Every time you push to GitHub, Render auto-redeploys:
-git add .
-git commit -m "your change"
-git push
+
+ - git add .
+ - git commit -m "your change"
+ - git push
