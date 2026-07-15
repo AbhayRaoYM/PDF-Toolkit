@@ -1,10 +1,30 @@
 import os
-from docx2pdf import convert as _convert
+import sys
+import subprocess
 
 
 def convert(docx_path: str, output_dir: str) -> str:
     """Convert a .docx file to PDF. Returns the path of the output PDF."""
     base = os.path.splitext(os.path.basename(docx_path))[0]
     pdf_path = os.path.join(output_dir, base + ".pdf")
-    _convert(docx_path, pdf_path)
+
+    if sys.platform == "win32" or sys.platform == "darwin":
+        # Windows / macOS — use docx2pdf (requires Microsoft Word)
+        from docx2pdf import convert as _convert
+        _convert(docx_path, pdf_path)
+    else:
+        # Linux — use LibreOffice headless
+        result = subprocess.run(
+            [
+                "libreoffice", "--headless", "--convert-to", "pdf",
+                "--outdir", output_dir,
+                docx_path,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(result.stderr or result.stdout)
+
     return pdf_path
